@@ -41,11 +41,11 @@ Initial materials created:
 - `lessons/03_q_learning/`: Q-learning GridWorld example.
 - `requirements.txt`: dependencies for later lessons; first three lessons use only Python standard library.
 
-The repository is not currently a git repository.
+Repository remote: `https://github.com/lanheixingkong/rl-course.git`. Lesson 01 and Lesson 02 have been committed and pushed to `main`. Lesson 03 has been completed by the user and is ready to commit/push.
 
 ## Recommended Next Step
 
-Continue preparing and teaching from `lessons/02_gridworld_dp`.
+After committing/pushing Lesson 03, continue with the next lesson only after the user asks to start it.
 
 Lesson 01 has been started. Current artifacts:
 
@@ -97,6 +97,42 @@ Suggested Lesson 02 flow:
 4. Read `GridWorld.step`, `evaluate_policy`, `improve_policy`, and `policy_iteration`.
 5. Only after the code is clear, introduce `V(s)` and the simplified Bellman update `V(s) <- r + gamma * V(s')`.
 6. Before moving to Lesson 03, ask the user to explain the difference between policy evaluation and policy improvement.
+
+Lesson 03 has been completed. Current artifacts:
+
+- `lessons/03_q_learning/q_learning_gridworld.py` is now a command-line Q-learning GridWorld example.
+- It supports CLI parameters: `--episodes`, `--max-steps`, `--alpha`, `--gamma`, `--epsilon`, `--step-reward`, `--goal-reward`, `--pit-reward`, `--slip-probability`, `--seed`, `--log-every`, and `--debug-episodes`.
+- `--debug-episodes N` prints step-by-step Q updates for the first N episodes, including `state`, `action`, `reward`, `next`, `old Q`, `target`, `td err`, and `new Q`.
+- `lessons/03_q_learning/README.md` has been rewritten as a beginner-friendly lesson entry point.
+- `docs/articles/lesson_03_q_learning_tutorial.md` is the shareable Chinese tutorial for Lesson 03.
+- `docs/articles/lesson_03_q_learning_cover.png` is the cover image for Lesson 03.
+- `docs/study_plan.md` now has Lesson 03 steps and pass criteria.
+
+Lesson 03 should follow the established teaching standard:
+
+- Explain output immediately after the run command.
+- Explain `episode`, `avg return`, `success rate`, `Best Q value`, and `Greedy policy` before formulas.
+- Explain the difference between Lesson 02 planning and Lesson 03 model-free learning: Q-learning still calls `env.step()` to receive experience, but it does not use a known model to plan over all state-action outcomes.
+- When users are confused by "known complete environment model" vs "learning from one experience", use the concrete GridWorld example: Lesson 02 can query/compute all possible results from `(2,0)` for `U/R/D/L` without walking and then plan globally; Lesson 03 only updates the action actually taken, e.g. after experiencing `(2,0), R, -0.04, (2,1)`, it updates `Q((2,0), R)` only. Stress that the difference is algorithmic usage of `env.step()`, not whether the Python simulation contains an environment function.
+- Explain `V(s)` vs `Q(s,a)` before introducing the Q-learning update.
+- Explain source code by execution flow: `main()` -> `train_q_learning()` -> `choose_action()` -> `env.step()` -> Q update -> final printing.
+- Map `q[state][action]` to `Q(s,a)`, `reward` to `r`, `next_state` to `s'`, `alpha` to learning rate, `gamma` to discount factor, and `max(q[next_state].values())` to `max_a' Q(s',a')`.
+- Teach the update as `new estimate = old estimate + step size * error` before showing the full formula.
+- Clarify `target = reward + gamma * next_best` and `td_error = target - old_q`.
+- When explaining Lesson 03 debug rows, stress that Q values are keyed by `(state, action)`, not just `state`. For example, step1 may update `Q((2,0), L)` to `-0.01`, while step2 reads `Q((2,0), R)`, whose old value is still `0.00`. Explain `target` as `reward + gamma * next_best`; early in training `next_best` is often `0.00`, so `target` may equal the immediate `reward`. If the move is non-terminal, that reward usually comes from `step_reward`, but `step_reward`, `reward`, and `target` are distinct concepts.
+- Clarify epsilon-greedy: `epsilon` controls explicit random exploration, but `epsilon=0` may still have randomness early because the code breaks ties randomly among equal Q values.
+- Clarify why Q-learning is off-policy by first explaining why the concept matters: it answers how Q-learning can behave with epsilon-greedy exploration while learning toward a greedy target policy. Behavior uses epsilon-greedy, while the update target uses greedy `max` over next-state Q values. Mention that this distinction helps later compare Q-learning/DQN with Sarsa and PPO.
+- Conceptual clarification: AlphaGo/AlphaZero are neither simply Lesson 02 planning nor Lesson 03 Q-learning. They are better described as known-game-rule model-based search/planning (MCTS) plus self-play RL plus neural network function approximation. They resemble Lesson 02 because game rules are known and MCTS plans/searches with the model; they resemble Lesson 03 because policy/value estimates are learned from self-play experience; they differ from tabular Q-learning because they learn policy/value networks and use search rather than maintaining a small `Q(s,a)` table.
+
+Suggested Lesson 03 flow:
+
+1. Ask the user to run `python lessons/03_q_learning/q_learning_gridworld.py`.
+2. Interpret training logs, `Best Q value`, and `Greedy policy`.
+3. Ask the user to run `python lessons/03_q_learning/q_learning_gridworld.py --episodes 5 --debug-episodes 1 --log-every 0`.
+4. Interpret one Q update row before showing the formula.
+5. Have the user change `episodes`, `epsilon`, `alpha`, and `slip-probability`.
+6. Read `make_q_table`, `choose_action`, and the Q update block inside `train_q_learning`.
+7. Before moving on, ask the user to explain `target`, `td_error`, model-free, and off-policy in their own words.
 
 ## Environment Notes
 

@@ -35,16 +35,176 @@
 当前正在学习：
 
 ```text
-Lesson 02: GridWorld Dynamic Programming
+Lesson 03: Q-learning GridWorld
 ```
 
 材料：
 
 - `README.md`
-- `lessons/02_gridworld_dp/README.md`
-- `lessons/02_gridworld_dp/gridworld_dp.py`
-- `docs/articles/lesson_02_gridworld_dp_tutorial.md`
+- `lessons/03_q_learning/README.md`
+- `lessons/03_q_learning/q_learning_gridworld.py`
+- `docs/articles/lesson_03_q_learning_tutorial.md`
 - `docs/study_plan.md`
+
+## Lesson 03 学习步骤
+
+### Step 0: 先读这些文件
+
+按顺序读：
+
+1. `lessons/03_q_learning/README.md`
+   - 先读到“怎么读输出”即可。
+   - 目的：知道 Q-learning 输出里的 `avg return`、`success rate`、`Best Q value`、`Greedy policy` 是什么。
+2. `docs/study_plan.md`
+   - 读当前 Lesson 03 部分。
+   - 目的：知道这一课具体要跑哪些实验。
+
+这一步不要先背 Q-learning 公式。先运行代码，看 agent 如何从经验中学习。
+
+### Step 1: 运行默认实验
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py
+```
+
+运行后先回到 `lessons/03_q_learning/README.md` 的“运行”和“怎么读输出”部分，对照看。
+
+先确认你理解：
+
+```text
+episode = 从起点开始的一局
+avg return = 最近若干局的平均累计奖励
+success rate = 到达 goal 的比例
+Best Q value = 每个状态下当前最好的动作价值
+Greedy policy = 训练后选择 Q 值最大动作得到的策略
+```
+
+### Step 2: 看单步 Q 更新
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 5 --debug-episodes 1 --log-every 0
+```
+
+重点看这一行：
+
+```text
+state, action, reward, next, old Q, target, td err, new Q
+```
+
+先不要急着看公式。先用中文解释：
+
+```text
+这一步发生了什么？
+old Q 为什么会变成 new Q？
+target 和 td err 分别表示什么？
+```
+
+### Step 3: 改 episodes
+
+目的：验证“经验数量是否足够”。
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 100 --log-every 50
+```
+
+重点看：
+
+```text
+Best Q value 是否还有些状态不稳定？
+Greedy policy 是否有局部动作看起来不合理？
+```
+
+### Step 4: 改 epsilon
+
+目的：验证“探索”的影响。
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 500 --epsilon 0 --log-every 250
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 500 --epsilon 0.5 --log-every 250
+```
+
+注意：`epsilon=0` 不一定完全没有随机性。因为初始 Q 值相同，代码会在并列最优动作中随机选一个。
+
+### Step 5: 改 alpha
+
+目的：验证“学习率”的影响。
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 1000 --alpha 0.05 --log-every 500
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 1000 --alpha 1.0 --log-every 500
+```
+
+重点看：
+
+```text
+学习是否变慢？
+训练日志是否更波动？
+最终 greedy policy 是否稳定？
+```
+
+### Step 6: 改 slip_probability
+
+目的：验证“环境随机性”。
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --slip-probability 0.1 --log-every 1000
+```
+
+重点看：
+
+```text
+avg steps 是否变多？
+avg return 是否下降？
+靠近坑的策略是否更保守？
+```
+
+### Step 7: 回到代码
+
+打开 `lessons/03_q_learning/q_learning_gridworld.py`，按顺序找这些部分：
+
+- `GridWorld.step`
+- `make_q_table`
+- `choose_action`
+- `train_q_learning`
+
+重点读这几行：
+
+```python
+old_q = q[state][action]
+next_best = 0.0 if done else max(q[next_state].values())
+target = reward + gamma * next_best
+td_error = target - old_q
+q[state][action] = old_q + alpha * td_error
+```
+
+学习顺序仍然是：先理解代码变量，再看公式。
+
+### Step 8: 阅读完整教程
+
+读：
+
+```text
+docs/articles/lesson_03_q_learning_tutorial.md
+```
+
+重点读：
+
+- 第 1-5 节：理解 Q-learning 解决的问题和输出。
+- 第 6-10 节：理解代码执行顺序、Q 表、TD error。
+- 第 11-13 节：理解 model-free、off-policy 和参数实验。
+
+## Lesson 03 过关标准
+
+进入下一课前，你需要能回答：
+
+1. `V(s)` 和 `Q(s,a)` 的区别是什么？
+2. 为什么 Q-learning 可以从单条经验更新？
+3. `target = reward + gamma * next_best` 表达了什么？
+4. `td_error` 为正和为负分别意味着什么？
+5. `epsilon` 太小和太大分别有什么问题？
+6. `alpha` 太小和太大分别有什么问题？
+7. Q-learning 为什么不需要提前知道完整环境模型？
+8. Q-learning 为什么叫 off-policy？
 
 ## Lesson 02 学习步骤
 

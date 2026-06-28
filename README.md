@@ -52,6 +52,30 @@ state -> action -> reward -> value -> policy
 - [第二课封面图](docs/articles/lesson_02_gridworld_dp_cover.png)
 - [第二课代码](lessons/02_gridworld_dp/gridworld_dp.py)
 
+### Lesson 03: Q-learning GridWorld
+
+第三课继续使用 GridWorld，但去掉“提前用完整环境模型做 planning”的学习方式，改为通过一条条经验更新动作价值：
+
+```text
+state, action, reward, next_state -> Q(s,a)
+```
+
+你会学到：
+
+- 第二课的 `V(s)` 和第三课的 `Q(s,a)` 有什么区别；
+- Q-learning 如何用单条经验更新动作价值；
+- `target`、`td error`、`alpha` 分别表示什么；
+- 为什么 `target` 早期可能看起来等于 `step_reward`；
+- 为什么训练时会探索，但学习目标仍然朝 greedy 策略靠近；
+- 为什么 Q-learning 被称为 model-free 和 off-policy。
+
+材料：
+
+- [第三课学习入口](lessons/03_q_learning/README.md)
+- [第三课分享版教程](docs/articles/lesson_03_q_learning_tutorial.md)
+- [第三课封面图](docs/articles/lesson_03_q_learning_cover.png)
+- [第三课代码](lessons/03_q_learning/q_learning_gridworld.py)
+
 ## 运行第一课
 
 当前第一课只使用 Python 标准库。
@@ -93,6 +117,30 @@ python lessons/02_gridworld_dp/gridworld_dp.py --gamma 0.5
 python lessons/02_gridworld_dp/gridworld_dp.py --step-reward -0.2
 python lessons/02_gridworld_dp/gridworld_dp.py --step-reward -1.0
 python lessons/02_gridworld_dp/gridworld_dp.py --pit-reward -5.0
+```
+
+## 运行第三课
+
+当前第三课只使用 Python 标准库。
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py
+```
+
+如果想观察单步 Q-learning 更新：
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 5 --debug-episodes 1 --log-every 0
+```
+
+也可以运行参数实验：
+
+```bash
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 100 --log-every 50
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 500 --epsilon 0 --log-every 250
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 500 --epsilon 0.5 --log-every 250
+python lessons/03_q_learning/q_learning_gridworld.py --episodes 1000 --alpha 0.05 --log-every 500
+python lessons/03_q_learning/q_learning_gridworld.py --slip-probability 0.1 --log-every 1000
 ```
 
 ## 发布节奏
