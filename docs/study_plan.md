@@ -35,16 +35,162 @@
 当前正在学习：
 
 ```text
-Lesson 03: Q-learning GridWorld
+Lesson 04: SARSA vs Q-learning
 ```
 
 材料：
 
 - `README.md`
-- `lessons/03_q_learning/README.md`
-- `lessons/03_q_learning/q_learning_gridworld.py`
-- `docs/articles/lesson_03_q_learning_tutorial.md`
+- `lessons/04_sarsa_vs_q_learning/README.md`
+- `lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py`
+- `docs/articles/lesson_04_sarsa_vs_q_learning_tutorial.md`
 - `docs/study_plan.md`
+
+## Lesson 04 学习步骤
+
+### Step 0: 先读这些文件
+
+按顺序读：
+
+1. `lessons/04_sarsa_vs_q_learning/README.md`
+   - 先读到“怎么读输出”即可。
+   - 目的：知道本课不是换环境，而是在同一个 GridWorld 中对比 SARSA 和 Q-learning。
+2. `docs/study_plan.md`
+   - 读当前 Lesson 04 部分。
+   - 目的：知道这一课具体要跑哪些实验。
+
+这一步不要先背 on-policy/off-policy 定义。先运行代码，看两种算法的 `target` 到底哪里不同。
+
+### Step 1: 运行默认对比实验
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py
+```
+
+运行后先回到 `lessons/04_sarsa_vs_q_learning/README.md` 的“运行”和“怎么读输出”部分，对照看。
+
+先确认你理解：
+
+```text
+algorithm = both 表示同一次运行中分别训练 SARSA 和 Q-learning
+avg return / avg steps / success rate 仍然是最近 100 局的统计
+best Q value by state 表示每个状态下最大的 Q(s,a)
+greedy policy 表示训练后按最大 Q 值行动得到的策略
+```
+
+### Step 2: 看单步更新差异
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --episodes 3 --debug-episodes 1 --log-every 0 --max-steps 20
+```
+
+重点看：
+
+```text
+next action
+target
+td err
+new Q
+```
+
+先用中文解释：
+
+```text
+为什么 SARSA 行里有 next action？
+为什么 Q-learning 行里的 next action 是 -？
+两者的 target 分别在估计什么？
+```
+
+### Step 3: 分别只运行一种算法
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --algorithm sarsa
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --algorithm q_learning
+```
+
+目的：确认两种算法都在学习 `Q(s,a)`，不是一个学 policy、另一个学 value。
+
+### Step 4: 改 epsilon
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --epsilon 0.5 --log-every 1000
+```
+
+目的：验证“行为策略探索越多，SARSA 和 Q-learning 的差异可能越明显”。
+
+重点看：
+
+```text
+Best Q value 是否差异变大？
+greedy policy 是否出现不同？
+avg return 是否更波动？
+```
+
+### Step 5: 改 slip_probability
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --slip-probability 0.1 --log-every 1000
+```
+
+目的：验证“环境随机性会放大或改变策略差异”。
+
+重点看：
+
+```text
+success rate 是否下降？
+靠近 pit 的策略是否更保守？
+SARSA 和 Q-learning 的表现是否仍然接近？
+```
+
+### Step 6: 回到代码
+
+打开 `lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py`，按顺序找这些部分：
+
+- `GridWorld.step`
+- `choose_action`
+- `train`
+- `if algorithm == "sarsa"`
+- `else` 分支里的 Q-learning target
+
+重点读这几行：
+
+```python
+target = reward + gamma * q[next_state][next_action]
+target = reward + gamma * max(q[next_state].values())
+td_error = target - old_q
+q[state][action] = old_q + alpha * td_error
+```
+
+学习顺序仍然是：先理解代码变量，再看公式。
+
+### Step 7: 阅读完整教程
+
+读：
+
+```text
+docs/articles/lesson_04_sarsa_vs_q_learning_tutorial.md
+```
+
+重点读：
+
+- 第 1-7 节：理解本课问题、输出和 debug 行。
+- 第 8-12 节：理解代码执行顺序和两种 target。
+- 第 13-15 节：理解 on-policy、off-policy 和实际意义。
+- 第 16-18 节：完成参数实验和过关检查。
+
+## Lesson 04 过关标准
+
+进入下一课前，你需要能回答：
+
+1. SARSA 和 Q-learning 学习的对象是不是都是 `Q(s,a)`？
+2. SARSA 里的 `S, A, R, S', A'` 分别是什么？
+3. SARSA 的 `target` 怎么算？
+4. Q-learning 的 `target` 怎么算？
+5. 为什么 SARSA 需要 `next_action`？
+6. 为什么 Q-learning 不需要 `next_action`？
+7. on-policy 中的 policy 指什么？
+8. off-policy 中“行为策略”和“目标策略”分别是什么？
+9. 为什么 `epsilon` 变大时，SARSA 和 Q-learning 的差异可能更明显？
 
 ## Lesson 03 学习步骤
 

@@ -4,6 +4,20 @@
 
 ## 已发布内容
 
+### Lesson 00: 课程总览地图
+
+第 0 课不讲具体算法，也没有代码。它回答一个更基础的问题：
+
+```text
+这套课程为什么从 Bandit -> GridWorld DP -> Q-learning 开始？
+```
+
+你会看到当前课程不是按 RL 历史顺序展开，而是按概念依赖关系推进：先学最小决策问题，再加入状态，再去掉已知环境模型假设，最后逐步走向深度 RL。
+
+材料：
+
+- [第 0 课分享版教程](docs/articles/lesson_00_rl_course_map.md)
+
 ### Lesson 01: Multi-Armed Bandit
 
 第一课用多臂老虎机问题理解强化学习里的第一个核心矛盾：
@@ -76,6 +90,31 @@ state, action, reward, next_state -> Q(s,a)
 - [第三课封面图](docs/articles/lesson_03_q_learning_cover.png)
 - [第三课代码](lessons/03_q_learning/q_learning_gridworld.py)
 
+### Lesson 04: SARSA vs Q-learning
+
+第四课继续使用同一个 GridWorld，对比两个很相近但学习目标不同的 Q 值更新方法：
+
+```text
+SARSA: reward + gamma * Q(next_state, next_action)
+Q-learning: reward + gamma * max_a Q(next_state, a)
+```
+
+你会学到：
+
+- 为什么 SARSA 和 Q-learning 都学习 `Q(s,a)`；
+- 为什么 SARSA 需要 `next_action`；
+- 为什么 Q-learning 不需要下一步实际动作；
+- 什么是 `on-policy`；
+- 什么是 `off-policy`；
+- 为什么探索概率 `epsilon` 会影响两种算法的差异。
+
+材料：
+
+- [第四课学习入口](lessons/04_sarsa_vs_q_learning/README.md)
+- [第四课分享版教程](docs/articles/lesson_04_sarsa_vs_q_learning_tutorial.md)
+- [第四课封面图](docs/articles/lesson_04_sarsa_vs_q_learning_cover.png)
+- [第四课代码](lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py)
+
 ## 运行第一课
 
 当前第一课只使用 Python 标准库。
@@ -141,6 +180,30 @@ python lessons/03_q_learning/q_learning_gridworld.py --episodes 500 --epsilon 0 
 python lessons/03_q_learning/q_learning_gridworld.py --episodes 500 --epsilon 0.5 --log-every 250
 python lessons/03_q_learning/q_learning_gridworld.py --episodes 1000 --alpha 0.05 --log-every 500
 python lessons/03_q_learning/q_learning_gridworld.py --slip-probability 0.1 --log-every 1000
+```
+
+## 运行第四课
+
+当前第四课只使用 Python 标准库。
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py
+```
+
+如果想观察 SARSA 和 Q-learning 的单步更新差异：
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --episodes 3 --debug-episodes 1 --log-every 0 --max-steps 20
+```
+
+也可以运行参数实验：
+
+```bash
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --algorithm sarsa
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --algorithm q_learning
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --epsilon 0.5 --log-every 1000
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --slip-probability 0.1 --log-every 1000
+python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --episodes 200 --log-every 100
 ```
 
 ## 发布节奏

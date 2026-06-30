@@ -28,6 +28,8 @@ End goal:
   - small exercises that modify the example.
 - Use Chinese for course explanations unless the user asks otherwise.
 - Keep code readable and beginner-friendly; avoid unnecessary abstraction.
+- Course files must be self-contained for readers who have not seen the chat history. Treat the user's questions as signals of likely reader confusion, then rewrite the docs so a new reader can understand directly from the files without knowing the conversation.
+- Do not introduce a new umbrella term in lesson prose before it has been explained. If a term such as "TD control" is useful, either avoid it in beginner-facing transitions or define it immediately using concepts already taught, such as `target`, `td_error`, `Q(s,a)`, and policy improvement through action choice.
 
 ## Current Course State
 
@@ -36,16 +38,59 @@ Initial materials created:
 - `README.md`: course overview and lightweight roadmap.
 - `docs/study_plan.md`: current operational learning plan and pass criteria.
 - `docs/curriculum.md`: broader curriculum notes and RL problem-modeling template.
+- `docs/articles/lesson_00_rl_course_map.md`: shareable Lesson 00 course map explaining why the first lessons are ordered by conceptual dependency rather than RL history.
 - `lessons/01_bandit/`: multi-armed bandit example.
 - `lessons/02_gridworld_dp/`: GridWorld dynamic programming example.
 - `lessons/03_q_learning/`: Q-learning GridWorld example.
-- `requirements.txt`: dependencies for later lessons; first three lessons use only Python standard library.
+- `lessons/04_sarsa_vs_q_learning/`: SARSA vs Q-learning comparison on the same GridWorld.
+- `requirements.txt`: dependencies for later lessons; first four lessons use only Python standard library.
 
-Repository remote: `https://github.com/lanheixingkong/rl-course.git`. Lesson 01 and Lesson 02 have been committed and pushed to `main`. Lesson 03 has been completed by the user and is ready to commit/push.
+Repository remote: `https://github.com/lanheixingkong/rl-course.git`. Lesson 01, Lesson 02, and Lesson 03 have been committed and pushed to `main`.
 
 ## Recommended Next Step
 
-After committing/pushing Lesson 03, continue with the next lesson only after the user asks to start it.
+Teach from Lesson 04 next. It has been created but not yet completed by the user.
+
+Lesson 00 has been added as a reference article only:
+
+- It is not a code lesson.
+- It explains that the course order is based on conceptual dependency, not strict RL history.
+- It frames the first three lessons as: Bandit teaches action value and exploration; GridWorld DP adds state/policy/value under a known-model planning assumption; Q-learning removes the known-model assumption and learns from experienced `(state, action, reward, next_state)` transitions.
+- It gives a provisional roadmap toward Monte Carlo/SARSA, function approximation, DQN, Policy Gradient, Actor-Critic/PPO, and practical RL problem modeling.
+- It provides a checklist for reading unfamiliar RL methods: state, action, reward, episode boundary, model known/unknown, data source, learned object (`V`, `Q`, policy, model), representation, exploration, and update target/loss.
+
+Lesson 04 has been started. Current artifacts:
+
+- `lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py` is a command-line comparison of SARSA and Q-learning on the same GridWorld used in Lessons 02-03.
+- It supports CLI parameters: `--algorithm` (`sarsa`, `q_learning`, `both`), `--episodes`, `--max-steps`, `--alpha`, `--gamma`, `--epsilon`, `--step-reward`, `--goal-reward`, `--pit-reward`, `--slip-probability`, `--seed`, `--log-every`, and `--debug-episodes`.
+- `--debug-episodes N` prints step-by-step updates for the first N episodes, including `state`, `action`, `reward`, `next`, `next action`, `old Q`, `target`, `td err`, and `new Q`.
+- `lessons/04_sarsa_vs_q_learning/README.md` is the beginner-friendly lesson entry point.
+- `docs/articles/lesson_04_sarsa_vs_q_learning_tutorial.md` is the shareable Chinese tutorial draft for Lesson 04.
+- `docs/articles/lesson_04_sarsa_vs_q_learning_cover.png` is the cover image for Lesson 04.
+- `docs/study_plan.md` now has Lesson 04 steps and pass criteria.
+
+Lesson 04 should follow the established teaching standard:
+
+- Explain output immediately after the run command.
+- Explain that SARSA and Q-learning both learn `Q(s,a)` and both can use epsilon-greedy exploration; the core difference is the update target, and the related implementation difference is that SARSA must choose/read `next_action` while Q-learning does not need the next actually chosen action.
+- Explain the debug table before formulas. In SARSA rows, `next action` is the next action actually chosen by the behavior policy. In Q-learning rows, `next action` is `-` because Q-learning does not need the next actually chosen action for its target.
+- Map `q[state][action]` to `Q(s,a)`, `next_action` to `a'`, `reward` to `r`, `next_state` to `s'`, `alpha` to learning rate, and `gamma` to discount factor.
+- Teach the common update shell first: `new estimate = old estimate + step size * error`.
+- Then compare targets: SARSA uses `reward + gamma * q[next_state][next_action]`; Q-learning uses `reward + gamma * max(q[next_state].values())`.
+- Clarify on-policy: SARSA uses the same epsilon-greedy behavior policy to act and to form the target via `next_action`.
+- Clarify off-policy: Q-learning may behave with epsilon-greedy exploration but forms the target using the greedy `max` over next-state Q values.
+- Explain why increasing `epsilon` can make SARSA and Q-learning differ more: SARSA's target reflects exploratory next actions, while Q-learning's target continues to assume greedy next actions.
+- Explain why Lesson 04 matters even when the small GridWorld results look similar: the lesson is not a performance benchmark; it teaches the behavior-policy vs target-policy distinction, which later affects data reuse, replay buffers, offline data, safety under exploration, sample efficiency, and stability with function approximation.
+
+Suggested Lesson 04 flow:
+
+1. Ask the user to run `python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py`.
+2. Interpret config, training logs, summary, `Best Q value`, and `greedy policy`.
+3. Ask the user to run `python lessons/04_sarsa_vs_q_learning/sarsa_vs_q_learning.py --episodes 3 --debug-episodes 1 --log-every 0 --max-steps 20`.
+4. Interpret one SARSA row and one Q-learning row, focusing on `next action` and `target`.
+5. Have the user run `--algorithm sarsa`, `--algorithm q_learning`, `--epsilon 0.5`, and `--slip-probability 0.1`.
+6. Read `choose_action` and the target calculation block inside `train`.
+7. Before moving on, ask the user to explain on-policy and off-policy in terms of behavior policy vs target policy.
 
 Lesson 01 has been started. Current artifacts:
 
